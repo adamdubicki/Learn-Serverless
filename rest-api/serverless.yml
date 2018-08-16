@@ -22,7 +22,7 @@ provider:
   timeout: 300
   apiKeys: 
     - todoAPI
-# Put your db creds here
+# Put your db creds here (dummy data)
 environment:
   username: root
   password: password
