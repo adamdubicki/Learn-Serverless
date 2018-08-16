@@ -1,0 +1,34 @@
+
+service: s3-notification
+
+# You can pin your service to only deploy with a specific Serverless version
+# Check out our docs for more details
+# frameworkVersion: "=X.X.X"
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  stage: dev
+  region: us-west-2
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:*
+      Resource: "*"
+
+# you can add packaging information here
+#package:
+#  include:
+#    - include-me.js
+#    - include-me-dir/**
+#  exclude:
+#    - exclude-me.js
+#    - exclude-me-dir/**
+Resource:
+functions:
+  s3_notification:
+    handler: handler.s3_notification
+    events:
+      - s3:
+          bucket: s3-fresh-adam
+          event: s3:ObjectCreated:*
