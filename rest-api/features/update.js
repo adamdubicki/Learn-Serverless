@@ -1,16 +1,29 @@
-'use strict';
+const db = require("../db.js");
 
-module.exports.hello = (event, context, callback) => {
-  const response = {
-    statusCode: 200,
-    body: JSON.stringify({
-      message: 'Go Serverless v1.0! Your function executed successfully!',
-      input: event,
-    }),
-  };
+module.exports.updateTodo = (event, context, callback) => {
+  const todo_id = event.pathParameters.id;
+  const body = JSON.parse(event.body);
 
-  callback(null, response);
 
-  // Use this code if you don't use the http event with the LAMBDA-PROXY integration
-  // callback(null, { message: 'Go Serverless v1.0! Your function executed successfully!', event });
+  db.todo.update(body, {
+    where: { id: todo_id },
+    returning: true
+  })
+  .then(resArr => {
+    const [rowsAffected, todoArr] = resArr;
+    console.log(`${rowsAffected} row wered updated with this obj: ${JSON.stringify(body)}`);
+    return callback(null, {
+      statusCode: 200,
+      body: JSON.stringify({
+        todo: todoArr[0]
+      })
+    });
+  }).catch(error => {
+    return callback(null, {
+      statusCode: 500,
+      body: JSON.stringify({
+        error: `There was an error updating todo id ${todo_id}`
+      })
+    });
+  });
 };

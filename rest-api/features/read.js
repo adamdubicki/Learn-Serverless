@@ -1,16 +1,48 @@
-'use strict';
+"use strict";
 
-module.exports.firstGET = (event, context, callback) => {
-  const response = {
-    statusCode: 200,
-    body: JSON.stringify({
-      message: 'Go Serverless v1.0! Your function executed successfully!',
-      input: event,
-    }),
-  };
+const db = require('../db');
 
-  callback(null, response);
+module.exports.getTodo = (event, context, callback) => {
+  const todo_id = event.pathParameters.id;
+  db.todo
+  .findOne({
+    where: { id: todo_id },
+    attributes: ['id', 'task', 'completed']}
+  ).then(todo => {
+    const response = {
+      statusCode: 200,
+      body: JSON.stringify({
+        todo: todo
+      })
+    };
+    callback(null, response);
+  }).catch(error => {
+    callback(null, response = {
+      statusCode: 500,
+      body: JSON.stringify({
+        error: `There was an error fetching your todo with id: ${todo_id}.`
+      })
+    });
+  });
+};
 
-  // Use this code if you don't use the http event with the LAMBDA-PROXY integration
-  // callback(null, { message: 'Go Serverless v1.0! Your function executed successfully!', event });
+module.exports.listTodos = (event, context, callback) => {
+  db.todo.findAll({
+    attributes: ['id', 'task', 'completed']
+  }).then(todos => {
+    const response = {
+      statusCode: 200,
+      body: JSON.stringify({
+        todos: todos
+      })
+    };
+    callback(null, response);
+  }).catch(error => {
+    callback(null, response = {
+      statusCode: 500,
+      body: JSON.stringify({
+        error: `There was an error fetching your todos.`
+      })
+    });
+  });
 };

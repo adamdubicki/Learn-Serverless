@@ -1,16 +1,35 @@
-'use strict';
+const db = require("../db.js");
 
-module.exports.hello = (event, context, callback) => {
-  const response = {
-    statusCode: 200,
-    body: JSON.stringify({
-      message: 'Go Serverless v1.0! Your function executed successfully!',
-      input: event,
-    }),
-  };
+module.exports.createTodo = (event, context, callback) => {
+  const body = JSON.parse(event.body);
+  const { task } = body;
 
-  callback(null, response);
+  if(!task) {
+    return callback(null, {
+      statusCode: 500,
+      body: JSON.stringify({
+        error: 'The property "task" is required.'
+      })
+    })
+  }
 
-  // Use this code if you don't use the http event with the LAMBDA-PROXY integration
-  // callback(null, { message: 'Go Serverless v1.0! Your function executed successfully!', event });
+  db.todo
+  .create({
+    task: body.task
+  })
+  .then(todo => {
+    return callback(null, {
+      statusCode: 200,
+      body: JSON.stringify({
+        todo: todo
+      })
+    });
+  }).catch(error => {
+    return callback(null, {
+      statusCode: 500,
+      body: JSON.stringify({
+        error: "There was an error creating your todo."
+      })
+    });
+  });
 };
